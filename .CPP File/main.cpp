@@ -185,6 +185,7 @@ int main(int argc, char* args[]) {
                 }
                 else if (selection == 2) {
                     Game2P game2p(window, renderer, 960, 576);
+		    continuePlaying = false;
                 }
             }
 
