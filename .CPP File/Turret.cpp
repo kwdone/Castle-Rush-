@@ -1,5 +1,5 @@
 #include "Turret.h"
-
+#include "Game.h"
 
 const float Turret::speedAngular = MathAddon::angleDegToRad(180.0f), Turret::weaponRange = 3.5f;
 
@@ -11,6 +11,7 @@ Turret::Turret(SDL_Renderer* renderer, Vector2D setPos) :
 	textureMain = TextureLoader::loadTexture(renderer, "Golden Ballista.bmp");
 	textureHolder = TextureLoader::loadTexture(renderer, "Inanimate Ballista.bmp");
 	mix_ChunkShoot = SoundLoader::loadSound("Arrow Shoot.ogg");
+
 }
 
 
@@ -30,11 +31,11 @@ void Turret::update(SDL_Renderer* renderer, float dT, std::vector<std::shared_pt
 	}
 
 	//Find a target if needed.
-	if (unitTarget.expired())
+	if (unitTarget.expired() && !Game::isPaused)
 		unitTarget = findEnemyUnit(listUnits);
 
 	//Update the angle and shoot a projectile if needed.
-	if (updateAngle(dT))
+	if (updateAngle(dT) && !Game::isPaused)
 		shootProjectile(renderer, listProjectiles);
 }
 
@@ -69,7 +70,11 @@ bool Turret::updateAngle(float dT) {
 void Turret::shootProjectile(SDL_Renderer* renderer, std::vector<Projectile>& listProjectiles) {
 	//Shoot a projectile towards the target unit if the weapon timer is ready.
 	if (timerWeapon.timeSIsZero()) {
-		listProjectiles.push_back(Projectile(renderer, pos, Vector2D(angle)));
+        int damageToUse = upgraded ? upgradedDamage : baseDamage;
+		listProjectiles.push_back(Projectile(renderer, pos, Vector2D(angle), damageToUse));
+
+//        if(upgraded)
+//            Projectile::upgraded = true;
 
         //Play the shoot sound.
         if (mix_ChunkShoot != nullptr)
@@ -83,7 +88,7 @@ void Turret::shootProjectile(SDL_Renderer* renderer, std::vector<Projectile>& li
 
 void Turret::draw(SDL_Renderer* renderer, int tileSize) {
 	//drawWithoutAnimation(renderer, textureMain, -5, tileSize);
-	if(enemyFound())
+	if(enemyFound() && !Game::isPaused)
 	drawTextureWithOffset(renderer, textureMain, 0, tileSize);
 	else
 	drawWithoutAnimation(renderer, textureHolder, 0, tileSize);
@@ -209,4 +214,44 @@ std::weak_ptr<Unit> Turret::findEnemyUnit(std::vector<std::shared_ptr<Unit>>& li
 	}
 
 	return closestUnit;
+}
+
+/*
+void Turret::upgradeTurret(std::vector<Turret>& listTurrets, const Vector2D& position, std::vector<Projectile>& listProjectiles) {
+    for (auto& turret : listTurrets) {
+        if (turret.checkIfOnTile(position.x, position.y)) {
+            turret.upgraded = true;
+            turret.timerWeapon = 0.4f;  // Modify the actual turret's timerWeapon
+            break;  // Exit loop after upgrading the first matching turret
+        }
+    }
+
+}
+*/void Turret::upgradeTurret(std::vector<Turret>& listTurrets, const Vector2D& position, std::vector<Projectile>& listProjectiles, SDL_Renderer* renderer) {
+    // Check if the current turret matches the upgrade position
+    if (checkIfOnTile(position.x, position.y)) {
+        // Check if the turret is already upgraded
+        if (!upgraded) {
+            timerWeapon = 0.5f;  // Modify the actual turret's timerWeapon
+            upgraded = true;
+
+            // Set upgraded flag only for projectiles from this turret
+            for (auto& projectile : listProjectiles) {
+                // Assuming 1.0f as close enough to consider it's from this turret
+                if ((projectile.pos - position).magnitude() < 1.0f) {
+                    projectile.setUpgraded(true);
+                }
+            }
+
+            // Mark the turret in the list as upgraded
+            for (auto& turret : listTurrets) {
+                if (turret.checkIfOnTile(position.x, position.y)) {
+                    turret.upgraded = true;
+                    turret.textureMain = TextureLoader::loadTexture(renderer, "Fire_Ballista.bmp");
+                    turret.textureHolder = TextureLoader::loadTexture(renderer, "Fire_Ballista_Inanimate.bmp");
+                    break; // Exit loop after upgrading the first matching turret
+                }
+            }
+        }
+    }
 }
