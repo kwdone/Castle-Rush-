@@ -4,7 +4,6 @@
 #include <SDL_ttf.h>
 #include "SDL_mixer.h"
 #include "Menu.h"
-#include "GameOver.h"
 #include "GameMode2P.h"
 #include "SelectionMap.h"
 
