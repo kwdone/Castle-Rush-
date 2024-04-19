@@ -4,6 +4,9 @@
 #include <SDL_ttf.h>
 #include "SDL_mixer.h"
 #include "Menu.h"
+#include "GameOver.h"
+#include "GameMode2P.h"
+#include "SelectionMap.h"
 
 
 int main(int argc, char* args[]) {
@@ -84,7 +87,8 @@ int main(int argc, char* args[]) {
 				//Start the game.
 				/*Mix_Chunk* background = SoundLoader::loadSound("Kingdom Dance.ogg");
 				if (background != nullptr)
-                    Mix_PlayChannel(-1, background, 0);*/
+                    Mix_PlayChannel(-1, background, 0);
+                    */
                 Mix_Music* background = Mix_LoadMUS("C:/Stuff/Kingdom Dance.ogg");
                 Mix_Music* menu_background = Mix_LoadMUS("C:/Stuff/Medieval Music Wild Boars Inn.ogg");
                     if (!background) {
@@ -97,18 +101,19 @@ int main(int argc, char* args[]) {
                         // Handle the error, return, or exit the program as appropriate.
                         }
 
-                /*if (Mix_PlayMusic(background, -1) == -1) {
+                if (Mix_PlayMusic(background, -1) == -1) {
     std::cerr << "Error: Couldn't play background music - " << Mix_GetError() << '\n';
     // Handle the error, return, or exit the program as appropriate.
 }
-*/
+
                 Menu menu;
                  if (Mix_PlayMusic(menu_background, -1) == -1) {
     std::cerr << "Error: Couldn't play background music - " << Mix_GetError() << '\n';
     // Handle the error, return, or exit the program as appropriate.
 }
+               // jump:
+ /*
                 int i = menu.showMenu(window, renderer, font40);
-
                 if(i == 0){
 
                 Mix_FreeMusic(menu_background);
@@ -116,16 +121,109 @@ int main(int argc, char* args[]) {
     std::cerr << "Error: Couldn't play background music - " << Mix_GetError() << '\n';
     // Handle the error, return, or exit the program as appropriate.
 }
+                Map level_map;
+                Level::chooseLevel = level_map.showMap(window, renderer, font40);
+                if(Level::chooseLevel == 1 || Level::chooseLevel == 2 || Level::chooseLevel == 3){
 				Game game(window, renderer, windowWidth, windowHeight);
+
+				if (Game::backToSelectionScreen) {
+            Game::backToSelectionScreen = false;
+
+        }
+                    /*if(Game::backToSelectionScreen){
+                        Game::backToSelectionScreen = false;
+                        goto jump;
+                    }
+
+
                 }
-                else {
+
+              }
+*/
+
+    bool continuePlaying = true;
+    while (continuePlaying) {
+        Menu menu;
+        int selection = -1; // Default selection to an invalid value
+        SDL_Event event;
+
+        do {
+            while (SDL_PollEvent(&event)) {
+                if (event.type == SDL_QUIT) {
+                    continuePlaying = false;
+                    break;
+                }
+
+                selection = menu.showMenu(window, renderer, font40);
+
+                if (selection == 0) {
+                    Mix_FreeMusic(menu_background);
+                    if (Mix_PlayMusic(background, -1) == -1) {
+                        std::cerr << "Error: Couldn't play background music - " << Mix_GetError() << '\n';
+                        continue; // Skip to next iteration
+                    }
+
+                    do {
+                        Map level_map;
+                        Level::chooseLevel = level_map.showMap(window, renderer, font40);
+                        Game::backToSelectionScreen = false;
+                        if(Level::chooseLevel == 0){
+                            continuePlaying = false;
+                        }
+
+
+                        else if (Level::chooseLevel == 1 || Level::chooseLevel == 2 || Level::chooseLevel == 3) {
+                            Game::gold = 300;
+                            Game::CastleHealth = 10;
+                            Game::currentScore = 0;
+                            Game::totalRoundsSpawned = 3;
+                            Game::spawnUnitCount = 10;
+                            Game::isPaused = false;
+                            Game game(window, renderer, 960, 576);
+                            continuePlaying = Game::backToSelectionScreen;
+                        }
+                    } while (Game::backToSelectionScreen);
+                }
+                else if (selection == 2) {
+                    Game2P game2p(window, renderer, 960, 576);
+                }
+            }
+
+            if (selection == 1 || !continuePlaying) {
+                break;
+            }
+
+        } while (selection != 1); // Continue showing the menu until "Exit" is selected
+
+
+                if(Game::lose){
+                        SDL_Rect screen = { 0, 0, 960, 576 };
+    // SDL_Texture* highScoreBoard = TextureLoader::loadTexture(renderer, "Board.bmp");
+    SDL_Texture* textureLose = TextureLoader::loadTexture(renderer, "You Lose.bmp");
+
+    SDL_RenderCopy(renderer, textureLose, NULL, &screen);
+    SDL_RenderPresent(renderer);
+    SDL_Delay(3000);
+                }
+                else if(Game::win){
+                     SDL_Rect screen = { 0, 0, 960, 576 };
+    // SDL_Texture* highScoreBoard = TextureLoader::loadTexture(renderer, "Board.bmp");
+    SDL_Texture* textureBackground = TextureLoader::loadTexture(renderer, "images.bmp");
+    SDL_Texture* textureWin = TextureLoader::loadTexture(renderer, "You Win.bmp");
+
+    SDL_RenderCopy(renderer, textureBackground, NULL, &screen);
+    SDL_RenderCopy(renderer, textureWin, NULL, &screen);
+    SDL_RenderPresent(renderer);
+    SDL_Delay(3000);
+                }
+
+    }   //DEMO
 				//Clean up.
 				SDL_DestroyRenderer(renderer);
                 TTF_CloseFont(font);
 
 			//Clean up.
 			SDL_DestroyWindow(window);
-
 
                 Mix_FreeMusic(background);
                 }
@@ -141,4 +239,5 @@ int main(int argc, char* args[]) {
 	}
 	return 0;
 }
-}
+
+
