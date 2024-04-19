@@ -1,14 +1,15 @@
 #include "Level.h"
-
-
+#include "Game.h"
+int Level::chooseLevel = 0;
+bool Level::openPortal = false;
 
 Level::Level(SDL_Renderer* renderer, int setTileCountX, int setTileCountY) :
     tileCountX(setTileCountX), tileCountY(setTileCountY),
-    targetX(setTileCountX / 2), targetY(setTileCountY / 2) {
+    targetX(setTileCountX / 2), targetY(setTileCountY / 2), timerForLevel3(15.0f) {
     textureTileWall = TextureLoader::loadTexture(renderer, "FieldsTile_38.bmp");
     textureTileTarget = TextureLoader::loadTexture(renderer, "New Castle.bmp");
-    textureTileEnemySpawner = TextureLoader::loadTexture(renderer, "Tile Enemy Spawner.bmp");
-
+    textureTileEnemySpawner = TextureLoader::loadTexture(renderer, "Enemy Gate.bmp");
+    texturePortal = TextureLoader::loadTexture(renderer, "Portal.bmp");
     textureTileEmpty = TextureLoader::loadTexture(renderer, "FieldsTile_35.bmp");
     textureTileArrowUp = TextureLoader::loadTexture(renderer, "Tile Arrow Up.bmp");
     textureTileArrowUpRight = TextureLoader::loadTexture(renderer, "Tile Arrow Up Right.bmp");
@@ -22,44 +23,58 @@ Level::Level(SDL_Renderer* renderer, int setTileCountX, int setTileCountY) :
     textureTree = TextureLoader::loadTexture(renderer, "Tree.bmp");
     textureTreeShadow = TextureLoader::loadTexture(renderer, "TreeShadow.bmp");
     textureRock = TextureLoader::loadTexture(renderer, "Rock.bmp");
-
+    textureRuin = TextureLoader::loadTexture(renderer, "Brown_ruins1.bmp");
+    textureRuinStair = TextureLoader::loadTexture(renderer, "Brown_ruins2.bmp");
+    textureGreenPortal = TextureLoader::loadTexture(renderer, "Green Portal.bmp");
+    textureGrass = TextureLoader::loadTexture(renderer, "3.bmp");
+    textureFlower = TextureLoader::loadTexture(renderer, "4.bmp");
+    textureCamp3 = TextureLoader::loadTexture(renderer, "Camp3.bmp");
+    textureCamp4 = TextureLoader::loadTexture(renderer, "1.bmp");
+    textureCampFire = TextureLoader::loadTexture(renderer, "CampFire.bmp");
     size_t listTilesSize = (size_t)tileCountX * tileCountY;
     listTiles.assign(listTilesSize, Tile{});
-    load_map();
+    int xMax = tileCountX - 1;
+    int yMax = tileCountY - 1;
+
+    if(chooseLevel == 1){
+    load_map(Types1);
+    }
+    else if(chooseLevel == 2){
+    load_map(Types2);
+    targetY = setTileCountY / 2 - 2;
+    }
+    else if(chooseLevel == 3){
+    load_map(Types3);
+   // setTileType(xMax, yMax, TileType::wall);
+    targetX = 14;
+    targetY = 2;
+    }
 
 
     //SPECIFIC PLACE TO MAKE CHANGE
     //Add an enemy spawner at each corner. Remember this part because in the future I would like to change it
-    int xMax = tileCountX - 1;
-    int yMax = tileCountY - 1;
     //These indicate the four corners. It can be changed on levels
     setTileType(0, 0, TileType::enemySpawner);
     setTileType(xMax, 0, TileType::enemySpawner);
     setTileType(0, yMax, TileType::enemySpawner);
     setTileType(xMax, yMax, TileType::enemySpawner);
+    if(chooseLevel == 3){
+        setTileType(xMax, yMax, TileType::empty);
+        setTileType(xMax, 0, TileType::wall);
+    }
+
+    if(chooseLevel == 2){
+    portalDestinations[0] = Vector2D(2, 1);
+    portalDestinations[1] = Vector2D(5, 5);
+    setTileType(2, 1, TileType::portal);
+    setTileType(5, 5, TileType::portal);
+    }
 
     calculateFlowField();
 
 }
 
-
-
 void Level::draw(SDL_Renderer* renderer, int tileSize) {
-    //Draw the tile's background color.
-    //WARNING FOR CONSTRUCTION
-    //These codes change the appearance of the background. Maybe I can insert BMP file in to make it look more realistic
-   /* for(int y = 0; y < tileCountY; y++) {
-        for(int x = 0; x < tileCountX; x++){
-            if((x + y) % 2 == 0)
-                SDL_SetRenderDrawColor(renderer, 255, 228, 225, 255);
-            else
-                SDL_SetRenderDrawColor(renderer, 210, 105, 30, 255);
-
-            SDL_Rect rect = { x * tileSize, y * tileSize, tileSize, tileSize };
-            SDL_RenderFillRect(renderer, &rect);
-        }
-    }
-    */
 
 
     for (int y = 0; y < tileCountY; y++) {
@@ -88,6 +103,8 @@ void Level::draw(SDL_Renderer* renderer, int tileSize) {
     for (int y = 0; y < tileCountY; y++) {
         for (int x = 0; x < tileCountX; x++) {
             if (getTileType(x, y) == TileType::enemySpawner) {
+                SDL_Rect rect1 = { x * tileSize, y * tileSize, tileSize, tileSize };
+                SDL_RenderCopy(renderer, textureTileEmpty, NULL, &rect1);
                 SDL_Rect rect = { x * tileSize, y * tileSize, tileSize, tileSize };
                 SDL_RenderCopy(renderer, textureTileEnemySpawner, NULL, &rect);
             }
@@ -117,6 +134,23 @@ void Level::draw(SDL_Renderer* renderer, int tileSize) {
         }
     }
 
+
+    for (int y = 0; y < tileCountY; y++) {
+        for (int x = 0; x < tileCountX; x++) {
+            if (getTileType(x, y) == TileType::portal || getTileType(x, y) == TileType::greenPortal) {
+                int w, h;
+                SDL_QueryTexture(textureTileEmpty, NULL, NULL, &w, &h);
+                SDL_Rect rect = {
+                    x * tileSize + tileSize / 2 - w / 2,
+                    y * tileSize + tileSize / 2 - h / 2,
+                    w,
+                    h
+                };
+                SDL_RenderCopy(renderer, textureTileEmpty, NULL, &rect);
+            }
+        }
+    }
+
     //Draw tiles not allowing towers
     for (int y = 0; y < tileCountY; y++) {
         for (int x = 0; x < tileCountX; x++) {
@@ -136,6 +170,7 @@ void Level::draw(SDL_Renderer* renderer, int tileSize) {
 
     //Draw decor
     //Draw bushes
+    if(chooseLevel == 1){
     for (int y = 0; y < tileCountY; y++) {
         for (int x = 0; x < tileCountX; x++) {
             if (isBushOccupied(x, y)) {
@@ -223,6 +258,124 @@ void Level::draw(SDL_Renderer* renderer, int tileSize) {
 
     //Draw rocks
     drawObject(renderer, 350, 400, textureRock);
+    //
+    drawObject(renderer, 540, 320, textureRuin);
+    drawObject(renderer, 480, 380, textureRuinStair);
+
+    drawObject(renderer, 150, 500, textureCamp3);
+    drawObject(renderer, 240, 520, textureCamp4);
+
+    //drawObject(renderer, 200, 480, textureTreeShadow);
+    drawWithAnimation(renderer, 240, 480, textureCampFire);
+
+    }
+
+    if(chooseLevel == 2){
+        drawObject(renderer, 480, 0, textureTree);
+
+        drawObject(renderer, 400, 0, textureTree);
+
+        drawObject(renderer, 300, 500, textureTree);
+
+        drawObject(renderer, 320, 0 , textureTree);
+
+        drawObject(renderer, 580, 0, textureTree);
+
+        drawObject(renderer, 350, 50, textureTree);
+
+        drawObject(renderer, 420, 50, textureTree);
+
+    }
+       for (int y = 0; y < tileCountY; y++) {
+        for (int x = 0; x < tileCountX; x++) {
+            if (getTileType(x,y) == TileType::portal) {
+                SDL_Rect rect = {x * tileSize, y * tileSize, tileSize, tileSize};
+                SDL_RenderCopy(renderer, texturePortal, NULL, &rect);
+            }
+//            if (getTileType(x,y) == TileType::greenPortal) {
+//                SDL_Rect rect = {x * tileSize, y * tileSize, tileSize, tileSize};
+//                SDL_RenderCopy(renderer, textureGreenPortal, NULL, &rect);
+//            }
+        }
+
+    }
+
+    timerForLevel3.countDown(1.0f / 60.0f);
+    if(Game::totalRoundsSpawned % 2 == 0 && chooseLevel == 2){
+        setTileType(1, 7, TileType::portal);
+        setTileType(5, 3, TileType::portal);
+        setTileType(2, 1, TileType::empty);
+        setTileType(5, 5, TileType::empty);
+
+        portalDestinations[0] = Vector2D(1, 7);
+        portalDestinations[1] = Vector2D(5, 3);
+
+        setTileType(13, 7, TileType::greenPortal);
+        setTileType(9, 5, TileType::greenPortal);
+      //  setTileType(2, 1, TileType::empty);
+      //  setTileType(5, 5, TileType::empty);
+
+        portalDestinations[2] = Vector2D(13, 7);
+        portalDestinations[3] = Vector2D(9, 5);
+    }
+    else if(Game::totalRoundsSpawned % 2 == 1 && chooseLevel == 2){
+        setTileType(1, 7, TileType::empty);
+        setTileType(5, 3, TileType::empty);
+        setTileType(2, 1, TileType::portal);
+        setTileType(5, 5, TileType::portal);
+
+        portalDestinations[0] = Vector2D(2, 1);
+        portalDestinations[1] = Vector2D(5, 5);
+
+    }
+
+
+    if(Game::totalRoundsSpawned % 2 == 0 && chooseLevel == 3 && Game::spawnUnitCount == 8 && timerForLevel3.timeSIsZero()){
+        setTileType(1, 1, TileType::wall);
+        setTileType(2, 1, TileType::wall);
+        setTileType(7, 1, TileType::wall);
+        setTileType(8, 1, TileType::wall);
+        setTileType(3, 8, TileType::wall);
+        setTileType(4, 8, TileType::no_tower);
+        setTileType(5, 8, TileType::no_tower);
+        setTileType(6, 8, TileType::no_tower);
+        setTileType(11, 7, TileType::wall);
+
+        setTileType(1, 3, TileType::empty);
+        setTileType(2, 3, TileType::empty);
+        setTileType(4, 4, TileType::empty);
+        setTileType(5, 4, TileType::empty);
+        setTileType(7, 4, TileType::empty);
+        setTileType(8, 4, TileType::empty);
+        setTileType(11, 5, TileType::empty);
+        setTileType(12, 5, TileType::empty);
+        setTileType(13, 5, TileType::empty);
+        timerForLevel3.resetToMax();
+    } else if(Game::totalRoundsSpawned % 2 == 1 && chooseLevel == 3 && Game::spawnUnitCount == 8 && timerForLevel3.timeSIsZero()){
+        setTileType(1, 3, TileType::wall);
+        setTileType(2, 3, TileType::wall);
+        setTileType(7, 1, TileType::wall);
+        setTileType(8, 1, TileType::wall);
+        setTileType(4, 4, TileType::wall);
+        setTileType(5, 4, TileType::wall);
+        setTileType(7, 4, TileType::wall);
+        setTileType(8, 4, TileType::wall);
+        setTileType(11, 5, TileType::wall);
+        setTileType(12, 5, TileType::wall);
+        setTileType(13, 5, TileType::wall);
+
+        setTileType(1, 1, TileType::empty);
+        setTileType(2, 1, TileType::empty);
+        setTileType(7, 1, TileType::empty);
+        setTileType(8, 1, TileType::empty);
+        setTileType(3, 8, TileType::empty);
+        setTileType(4, 8, TileType::empty);
+        setTileType(5, 8, TileType::empty);
+        setTileType(6, 8, TileType::empty);
+        setTileType(11, 7, TileType::empty);
+        timerForLevel3.resetToMax();
+    }
+
 }
 
 void Level::drawObject(SDL_Renderer* renderer, int pos_x, int pos_y, SDL_Texture* object){
@@ -238,6 +391,56 @@ void Level::drawObject(SDL_Renderer* renderer, int pos_x, int pos_y, SDL_Texture
 
 }
 
+void Level::drawWithAnimation(SDL_Renderer* renderer, int pos_x, int pos_y, SDL_Texture* object){
+        const int WALKING_ANIMATION = 6;
+		SDL_Rect SpriteOrge[WALKING_ANIMATION];
+        int w, h;
+        SDL_QueryTexture(object, NULL, NULL, &w, &h);
+        SDL_Rect rect = {
+            pos_x - w / 12,
+			pos_y - h / 2,
+			w / 6,
+			h };
+
+		SpriteOrge[0].x = 0;
+		SpriteOrge[0].y = 0;
+		SpriteOrge[0].w = 64;
+		SpriteOrge[0].h = 64;
+
+		SpriteOrge[1].x = 64;
+		SpriteOrge[1].y = 0;
+		SpriteOrge[1].w = 64;
+		SpriteOrge[1].h = 64;
+
+		SpriteOrge[2].x = 128;
+		SpriteOrge[2].y = 0;
+		SpriteOrge[2].w = 64;
+		SpriteOrge[2].h = 64;
+
+		SpriteOrge[3].x = 192;
+		SpriteOrge[3].y = 0;
+		SpriteOrge[3].w = 64;
+		SpriteOrge[3].h = 64;
+
+		SpriteOrge[4].x = 256;
+		SpriteOrge[4].y = 0;
+		SpriteOrge[4].w = 64;
+		SpriteOrge[4].h = 64;
+
+		SpriteOrge[5].x = 320;
+		SpriteOrge[5].y = 0;
+		SpriteOrge[5].w = 64;
+		SpriteOrge[5].h = 64;
+
+		int frame = SDL_GetTicks() / 100;
+		int currentFrame = frame % WALKING_ANIMATION;
+		SDL_Rect currentSprite = SpriteOrge[currentFrame];
+
+        SDL_RenderCopy(renderer, object, &currentSprite, &rect);
+		++frame;
+		if(frame / 4 >= WALKING_ANIMATION)
+            frame = 0;
+}
 
 
 void Level::drawTile(SDL_Renderer* renderer, int x, int y, int tileSize) {
@@ -337,18 +540,19 @@ Level::TileType Level::getTileType(int x, int y) {
 }
 
 
-void Level::load_map(){
+void Level::load_map(std::vector<int> Types){
    // vector<Tile> loadedTiles(Types.size());
    //int index = x + y * tileCountX;
-    std::vector<int> Types = {1, 1, 1, 1, 1, 4, 4, 4, 4, 2, 1, 1, 1, 1, 1,
+ /*   std::vector<int> Types = {1, 1, 1, 1, 1, 4, 4, 4, 4, 2, 1, 1, 1, 1, 1,
                               0, 0, 0, 0, 1, 4, 4, 4, 2, 1, 3, 1, 1, 0, 0,
                               0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 3, 0, 0,
                               1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1,
                               1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1,
-                              1, 0, 1, 0, 4, 4, 1, 0, 1, 1, 1, 0, 1, 0, 1,
-                              1, 0, 0, 0, 4, 4, 4, 1, 1, 1, 1, 0, 0, 0, 1,
-                              1, 0, 1, 4, 4, 4, 4, 4, 4, 3, 4, 0, 1, 0, 1,
+                              1, 0, 1, 0, 4, 4, 1, 0, 4, 4, 1, 0, 1, 0, 1,
+                              1, 0, 0, 0, 4, 4, 4, 1, 4, 4, 1, 0, 0, 0, 1,
+                              1, 0, 1, 4, 4, 4, 4, 4, 4, 3, 1, 0, 1, 0, 1,
                               1, 0, 1, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 0, 1};
+                              */
     for (int y = 0; y < tileCountY; y++) {
         for (int x = 0; x < tileCountX; x++) {
             int index = x + y * tileCountX;
@@ -418,7 +622,7 @@ void Level::calculateFlowField() {
     }
 }
 
-
+//BFS Implemented
 void Level::calculateDistances() {
     int indexTarget = targetX + targetY * tileCountX;
 
@@ -496,6 +700,31 @@ void Level::calculateFlowDirections() {
         }
     }
 }
+/*
+void Level::teleportUnit(Vector2D& unitPosition) {
+    //Check if the unit is on a portal
+    float distanceToPortal = (portalDestinations[0] - unitPosition).magnitude();
+    int x = (int)unitPosition.x;
+    int y = (int)unitPosition.y;
+    if (getTileType(x, y) == TileType::portal) {
+       // int destinationIndex = (x <= portalDestinations[0].x && y == portalDestinations[0].y) ? 1 : 0;
+       // int destinationIndex = (distanceToPortal <= 1) ? 1 : 0;
+       if(distanceToPortal <= 1)
+        unitPosition = portalDestinations[1];
+    }
+}
+*/
+void Level::teleportUnit(Vector2D& unitPosition) {
+    // Check if the unit is on portal destination 0
+    float distanceToPortal0 = (portalDestinations[0] - unitPosition).magnitude();
+   // float distanceToPortal2 = (portalDestinations[2] - unitPosition).magnitude();
+    if (distanceToPortal0 <= 0.5f) {
+        // Teleport the unit to portal destination 1
+        unitPosition = portalDestinations[1];
+    }
+}
+
+
 
 
 
