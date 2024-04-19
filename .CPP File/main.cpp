@@ -4,6 +4,7 @@
 #include <SDL_ttf.h>
 #include "SDL_mixer.h"
 #include "Menu.h"
+#include "GameOver.h"
 #include "GameMode2P.h"
 #include "SelectionMap.h"
 
@@ -185,8 +186,10 @@ int main(int argc, char* args[]) {
                 }
                 else if (selection == 2) {
                     Game2P game2p(window, renderer, 960, 576);
-		    continuePlaying = false;
+                    continuePlaying = false;
                 }
+                else if (selection == 1)
+                    continuePlaying = false;
             }
 
             if (selection == 1 || !continuePlaying) {
