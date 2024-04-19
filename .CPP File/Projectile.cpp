@@ -3,19 +3,40 @@
 
 const float Projectile::speed = 10.0f, Projectile::size = 0.2f,
 	Projectile::distanceTraveledMax = 20.0f;
+float Projectile::upgradedDamage = 3;
+bool Projectile::upgraded = false;
 
 const float Projectile::speedAngular = MathAddon::angleDegToRad(180.0f);
 
 
-Projectile::Projectile(SDL_Renderer* renderer, Vector2D setPos, Vector2D setDirectionNormal) :
-	pos(setPos), directionNormal(setDirectionNormal), angle(0.0f) {
-	texture = TextureLoader::loadTexture(renderer, "Arrow.bmp");
-
+Projectile::Projectile(SDL_Renderer* renderer, Vector2D setPos, Vector2D setDirectionNormal, int damage) :
+	pos(setPos), directionNormal(setDirectionNormal), angle(3.0f) {
+	texture = TextureLoader::loadTexture(renderer, "Arrow (1).bmp");
 }
 
 
-
 void Projectile::update(float dT, std::vector<std::shared_ptr<Unit>>& listUnits) {
+    // Update the angle to face the target unit
+    updateAngle(dT);
+
+    // Move the projectile forward.
+    float distanceMove = speed * dT;
+    pos += directionNormal * distanceMove;
+
+    // Check for collisions
+    distanceTraveled += distanceMove;
+    if (distanceTraveled >= distanceTraveledMax)
+        collisionOccurred = true;
+
+    checkCollision(listUnits);
+}
+
+/*
+void Projectile::update(float dT, std::vector<std::shared_ptr<Unit>>& listUnits) {
+    if (updateAngle(dT)) {
+        // If the angle is updated, update the directionNormal as well
+        directionNormal = Vector2D(cos(angle), sin(angle));
+    }
 	//Move the projectile forward.
 	float distanceMove = speed * dT;
 	pos += directionNormal * distanceMove;
@@ -26,6 +47,11 @@ void Projectile::update(float dT, std::vector<std::shared_ptr<Unit>>& listUnits)
 	checkCollision(listUnits);
 
 }
+*/
+void Projectile::setUpgraded(bool flag) {
+    upgraded = flag;
+}
+
 
 
 
@@ -60,15 +86,17 @@ void Projectile::checkCollision(std::vector<std::shared_ptr<Unit>>& listUnits) {
 		for (int count = 0; count < listUnits.size() && collisionOccurred == false; count++) {
 			auto& unitSelected = listUnits[count];
 			if (unitSelected != nullptr && unitSelected->checkOverlap(pos, size)) {
-				unitSelected->removeHealth(1);
+//                if(!upgraded)
+//				unitSelected->removeHealth(damage);
+//				else unitSelected->removeHealth(3);
+				unitSelected->removeHealth(upgraded ? upgradedDamage : 1);
 				collisionOccurred = true;
 			}
 		}
 	}
 }
 
-
-
+/*
 
 bool Projectile::updateAngle(float dT) {
 	//Rotate towards the target unit if needed and output if it's pointing towards it or not.
@@ -94,4 +122,30 @@ bool Projectile::updateAngle(float dT) {
 	}
 
 	return false;
+}
+*/
+
+void Projectile::updateAngle(float dT) {
+    if (auto unitTargetSP = unitTarget.lock()) {
+        // Determine the direction vector towards the target.
+        Vector2D directionToTarget = (unitTargetSP->getPos() - pos).normalize();
+
+        // Calculate the angle between the current direction and the direction towards the target.
+        float targetAngle = atan2(directionToTarget.y, directionToTarget.x);
+        float angleDiff = targetAngle - angle;
+
+        // Normalize the angle difference to be within the range [-pi, pi].
+        while (angleDiff > M_PI) angleDiff -= 2.0f * M_PI;
+        while (angleDiff < -M_PI) angleDiff += 2.0f * M_PI;
+
+        // Determine the angle to rotate this frame.
+        float maxAngleRotate = speedAngular * dT;
+        float angleRotate = std::min(maxAngleRotate, std::abs(angleDiff)) * (angleDiff > 0 ? 1 : -1);
+
+        // Update the projectile's angle.
+        angle += angleRotate;
+
+        // Update the directionNormal.
+        directionNormal = Vector2D(cos(angle), sin(angle));
+    }
 }
