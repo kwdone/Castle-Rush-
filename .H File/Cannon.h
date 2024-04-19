@@ -8,6 +8,7 @@
 #include "Unit.h"
 #include "CannonBall.h"
 #include "Timer.h"
+
 //Note that many classes of turrets can be added in a level with different effect on the enemies.
 //This is just the basic turret
 class Cannon{
@@ -20,6 +21,8 @@ public:
     void draw(SDL_Renderer* renderer, int tileSize);
     bool checkIfOnTile(int x, int y);
     bool enemyFound();
+    int cannonHealth = 5;
+    Vector2D pos;
 private:
     bool updateAngle(float dT);
     void shootProjectile(SDL_Renderer* renderer, std::vector<CannonBall>& listBalls);
@@ -29,7 +32,7 @@ private:
                                int offset, int tileSize);
     std::weak_ptr<Unit> findEnemyUnit(std::vector<std::shared_ptr<Unit>>& listUnits);
 
-    Vector2D pos;
+   // Vector2D pos;
     float angle;
     static const float speedAngular, weaponRange;
 
