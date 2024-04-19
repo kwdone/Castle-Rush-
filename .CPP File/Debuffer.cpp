@@ -1,5 +1,5 @@
 #include "Debuffer.h"
-
+#include "Game.h"
 const float Debuffer::speedAngular = MathAddon::angleDegToRad(180.0f), Debuffer::weaponRange = 3.0f;
 
 
@@ -30,7 +30,7 @@ void Debuffer::update(SDL_Renderer* renderer, float dT, std::vector<std::shared_
     if (unitTarget.expired())
     unitTarget = findEnemyUnit(listUnits);
 
-   if(updateAngle(dT))
+   if(updateAngle(dT) && !Game::isPaused)
     shootWave(renderer, listWaves);
     }
 
