@@ -20,6 +20,12 @@ public:
     void draw(SDL_Renderer* renderer, int tileSize);
     bool checkIfOnTile(int x, int y);
     bool enemyFound();
+    int turretHealth = 3;
+    Vector2D pos;
+    void upgradeTurret(std::vector<Turret>& listTurrets, const Vector2D& position, std::vector<Projectile>& listProjectiles, SDL_Renderer* renderer);
+    bool upgraded = false;
+    int baseDamage = 1;
+    int upgradedDamage = 3;
 private:
     bool updateAngle(float dT);
     void shootProjectile(SDL_Renderer* renderer, std::vector<Projectile>& listProjectiles);
@@ -29,7 +35,7 @@ private:
                                int offset, int tileSize);
     std::weak_ptr<Unit> findEnemyUnit(std::vector<std::shared_ptr<Unit>>& listUnits);
 
-    Vector2D pos;
+    //Vector2D pos;
     float angle;
     static const float speedAngular, weaponRange;
 
