@@ -19,6 +19,7 @@ public:
     void draw(SDL_Renderer* renderer, int tileSize);
     bool checkIfOnTile(int x, int y);
     Vector2D getPos();
+     Vector2D pos;
 private:
     bool updateAngle(float dT);
     //void shootProjectile(SDL_Renderer* renderer, std::vector<Projectile>& listProjectiles);
@@ -30,7 +31,7 @@ private:
 
     Timer timerWeapon;
 
-    Vector2D pos;
+    //Vector2D pos;
     float angle;
     static const float speedAngular, weaponRange;
 
