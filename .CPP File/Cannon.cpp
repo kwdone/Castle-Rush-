@@ -1,5 +1,5 @@
 #include "Cannon.h"
-
+#include "Game.h"
 
 const float Cannon::speedAngular = MathAddon::angleDegToRad(180.0f), Cannon::weaponRange = 3.0f;
 
@@ -11,6 +11,7 @@ Cannon::Cannon(SDL_Renderer* renderer, Vector2D setPos) :
 	textureMain = TextureLoader::loadTexture(renderer, "Starry Cannon.bmp");
 	textureHolder = TextureLoader::loadTexture(renderer, "Inanimate Cannon.bmp");
 	mix_ChunkShoot = SoundLoader::loadSound("Explosion.ogg");
+
 }
 
 
@@ -30,11 +31,11 @@ void Cannon::update(SDL_Renderer* renderer, float dT, std::vector<std::shared_pt
 	}
 
 	//Find a target if needed.
-	if (unitTarget.expired())
+	if (unitTarget.expired() && !Game::isPaused)
 		unitTarget = findEnemyUnit(listUnits);
 
 	//Update the angle and shoot a projectile if needed.
-	if (updateAngle(dT))
+	if (updateAngle(dT) && !Game::isPaused)
 		shootProjectile(renderer, listBalls);
 }
 
@@ -83,7 +84,7 @@ void Cannon::shootProjectile(SDL_Renderer* renderer, std::vector<CannonBall>& li
 
 void Cannon::draw(SDL_Renderer* renderer, int tileSize) {
 	//drawWithoutAnimation(renderer, textureMain, -5, tileSize);
-	if(enemyFound())
+	if(enemyFound() && !Game::isPaused)
 	drawTextureWithOffset(renderer, textureMain, 0, tileSize);
 	else
 	drawWithoutAnimation(renderer, textureHolder, 0, tileSize);
