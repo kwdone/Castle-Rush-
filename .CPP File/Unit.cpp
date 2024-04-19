@@ -1,5 +1,6 @@
 #include "Unit.h"
 #include "Game.h"
+#include "GameMode2P.h"
 #include <iostream>
 
 //const float Unit::speed = 0.5f;
@@ -129,6 +130,7 @@ void Unit::update2P(float dT, Level2P& level2P, std::vector<std::shared_ptr<Unit
 
     if(distanceToTarget < 0.5f){
         Game::CastleHealth--;
+        Game2P::CastleHealth--;
         healthCurrent = 0;
     } else {
 	//Determine the distance to move this frame.
@@ -419,22 +421,6 @@ void Unit::returnSpeed(){
 Timer Unit::getTimerJustHurt(){
     return timerJustHurt;
 }
-
-
-
-/*
-void Unit::attackTurret(std::shared_ptr<Turret> towers){
-    if (isTowerInRange(towers)) {
-        towers->receiveDamage(attackPower);
-    }
-}
-
-void Unit::attackCannon(std::shared_ptr<Cannon> cannons) {
-    if (isTowerInRange(cannons)) {
-        cannons->receiveDamage(attackPower);
-    }
-}
-*/
 
 
 
