@@ -12,11 +12,11 @@
 - Có sự cải tiến và thay đổi đáng kể so với source code ban đầu.
   
   # Phụ lục
-  Hướng dẫn cách chơi:
-  Game Mode Classics:
-  -Chọn level muốn chơi tương ứng: Level 1 (basic), Level 2 (cổng không gian), Level 3 (Map thay đổi theo wave)
-  -Sử dụng chuột tương tác với menu chọn tower và đặt xuống các tiles. (Nâng cấp cho tháp cung bằng cách ấn lần nữa)
+  - Hướng dẫn cách chơi:
+  - Game Mode Classics:
+  - Chọn level muốn chơi tương ứng: Level 1 (basic), Level 2 (cổng không gian), Level 3 (Map thay đổi theo wave)
+  - Sử dụng chuột tương tác với menu chọn tower và đặt xuống các tiles. (Nâng cấp cho tháp cung bằng cách ấn lần nữa)
   Game Mode 2P:
-  -Sử dụng phím A - W - S - D để điều khiển cho con trỏ đặt tower của player 1 (phe Castle), nhấn 1, 2, 3 để chọn loại tower, nhấn X để đặt tháp; sử dụng phím mũi tên trên bàn phím để điều khiển cho con trỏ đặt units của player 2 (phe Enemy), nhấn J, K, L để chọn loại unit, nhấn SPACE để đặt unit.
+  - Sử dụng phím A - W - S - D để điều khiển cho con trỏ đặt tower của player 1 (phe Castle), nhấn 1, 2, 3 để chọn loại tower, nhấn X để đặt tháp; sử dụng phím mũi tên trên bàn phím để điều khiển cho con trỏ đặt units của player 2 (phe Enemy), nhấn J, K, L để chọn loại unit, nhấn SPACE để đặt unit.
 
   
