@@ -127,9 +127,6 @@ void Game2P::processEvents(SDL_Renderer* renderer, bool& running) {
                 else if(selectForTower_x == 222)
                 selectForTower_x -= 142;
                 break;
-//            case SDL_SCANCODE_1:
-//                placementModeCurrent = PlacementMode::wall;
-//                break;
             case SDL_SCANCODE_2:
                 placementModeCurrent = PlacementMode::turret;
                 if(selectForTower_x == 80)
@@ -144,10 +141,6 @@ void Game2P::processEvents(SDL_Renderer* renderer, bool& running) {
                 selectForTower_x += 67;
                 placementModeCurrent = PlacementMode::cannon;
                 break;
-//            case SDL_SCANCODE_4:
-//                placementModeCurrent = PlacementMode::cannon;
-//                break;
-                //Show/hide the overlay
             case SDL_SCANCODE_H:
                 overlayVisible = !overlayVisible;
                 break;
@@ -213,60 +206,6 @@ void Game2P::processEvents(SDL_Renderer* renderer, bool& running) {
         }
     }
 
-
-    //Process input from the mouse cursor.
-    int mouseX = 0, mouseY = 0;
-    SDL_GetMouseState(&mouseX, &mouseY);
-    //Convert from the window's coordinate system to the game's coordinate system.
-    Vector2D posMouse((float)mouseX / tileSize, (float)mouseY / tileSize);
-
-    /*if ((mouseX <= 440 && mouseX >= 380) && (mouseY <= 540 && mouseY >= 490) && mouseDownThisFrame == 1){
-            placementModeCurrent = PlacementMode::turret;
-    } else if ((mouseX <= 520 && mouseX >= 460) && (mouseY <= 540 && mouseY >= 490) && mouseDownThisFrame == 1){
-            placementModeCurrent = PlacementMode::cannon;
-    } else if ((mouseX <= 590 && mouseX >= 550) && (mouseY <= 540 && mouseY >= 490) && mouseDownThisFrame == 1){
-            placementModeCurrent = PlacementMode::debuffer;
-    }
-    */
-
-    /*
-    if (mouseDownStatus > 0) {
-        switch (mouseDownStatus) {
-        case SDL_BUTTON_LEFT:
-            switch (placementModeCurrent) { ////////////////////////
-            case PlacementMode::wall:
-                //Add wall at the mouse position.
-                level2P.setTileWall((int)posMouse.x, (int)posMouse.y, true);
-                break;
-            case PlacementMode::turret:
-                //Add the selected turret at the mouse position.
-                if (mouseDownThisFrame)
-                    addTurret(renderer, posMouse);
-                break;
-            case PlacementMode::debuffer:
-                //Add the selected debuffer at the mouse position.
-                if (mouseDownThisFrame)
-                    addDebuffer(renderer, posMouse);
-                break;
-            case PlacementMode::cannon:
-                if (mouseDownThisFrame)
-                    addCannon(renderer, posMouse);
-                break;
-            }
-            break;
-
-*/
-/*        case SDL_BUTTON_RIGHT:
-            //Remove wall at the mouse position.
-            level2P.setTileWall((int)posMouse.x, (int)posMouse.y, false);
-            //Remove turret at the mouse position.
-            removeTurretsAtMousePosition(posMouse);
-            //Remove debuffer at the mouse positio.
-            removeDebuffersAtMousePosition(posMouse);
-            break;
-        }
-    }
-    */
 }
 
 
@@ -274,16 +213,7 @@ void Game2P::update(SDL_Renderer* renderer, float dT) {
     //Update the units
     updateUnits(dT);
 
-   /* for (auto it = listUnits.begin(); it != listUnits.end();) {
-        (*it)->update(dT, level, listUnits);
-        //MODIFIED
-        if ((*it)->isAlive() == false){
-            it = listUnits.erase(it);
-        }
-        else
-            ++it;
-    }
-    */
+
 
     //Update the turrets.
     for(auto& towerSelected : listMoneyTowers)
@@ -328,31 +258,7 @@ for(auto& tower : listMoneyTowers) {
 
     for(auto& turretSelected : listTurrets)
         turretSelected.update(renderer, dT, listUnits, listProjectiles);
-/*
-    for(auto& turretSelected : listTurrets){
-        for (auto& unitSelected : listUnits){
-        if((turretSelected.pos - unitSelected->pos).magnitude() <= 0.75f){
-            unitSelected->moveOk = false;
-            unitSelected->timerAttack.countDown(dT);
-            unitSelected->texture = TextureLoader::loadTexture(renderer, "S_Attack.bmp");
 
-            if(unitSelected->timerAttack.timeSIsZero()){
-            turretSelected.turretHealth--;
-            }
-            if(turretSelected.turretHealth <= 0){
-                for(auto& unit : listUnits){
-                unit->moveOk = true;
-                unit->texture = TextureLoader::loadTexture(renderer, "S_Walk_Demo_2.bmp");
-                }
-            }
-            unitSelected->timerAttack.resetToMax();
-        }
-        }
-        if(turretSelected.turretHealth == 0)
-            removeTurretsAtMousePosition(turretSelected.pos);
-        }
-
-*/
     // Check for collisions between turrets and units
 for(auto& turret : listTurrets) {
     if(turret.turretHealth <= 0) {
@@ -438,7 +344,6 @@ for(auto& cannons : listCannons) {
     updateCannonBall(dT);
 
 
-//    updateSpawnUnitsIfRequired(renderer, dT);
 
 
 
@@ -552,21 +457,6 @@ void Game2P::draw(SDL_Renderer* renderer) {
     for(auto& ballSelected : listBalls)
         ballSelected.draw(renderer, tileSize);
 
-    //Draw the overlay.
-//    if (textureOverlay != nullptr && overlayVisible) {
-//        int w = 0, h = 0;
-//        SDL_QueryTexture(textureOverlay, NULL, NULL, &w, &h);
-//        SDL_Rect rect = { 40, 40, w, h };
-//        SDL_RenderCopy(renderer, textureOverlay, NULL, &rect);
-//    }
-
-    //Draw the choosing menu.
-//    if (textureChoosingTower != nullptr) {
-//        int w, h;
-//        SDL_QueryTexture(textureChoosingTower, NULL, NULL, &w, &h);
-//        SDL_Rect rect = {300, 350, w, h};
-//        SDL_RenderCopy(renderer, textureChoosingTower, NULL, &rect);
-//    }
 
     if (textureSelectionFrame1P != nullptr) {
         int w, h;
@@ -621,13 +511,6 @@ void Game2P::draw(SDL_Renderer* renderer) {
     if(CastleHealth >= 0)
     renderGold(renderer, 350, 5, getHealthText(),
                    font32, Yellow);
- //   renderCenter(0, 3 + 32, getStrokeText(), font32, black);
-//    renderGold(renderer, 550, 5, getWaveText(),
-//                    font32, Yellow);
-
-//    renderGold(renderer, 450, 20, getScoreText(),
-//                   font32, {255, 255, 255});
-
     renderGold(renderer, 700, 5, getElixirText(),
                     font32, {53, 53, 84});
     //Send the image to the window.
@@ -636,11 +519,6 @@ void Game2P::draw(SDL_Renderer* renderer) {
 
 
 void Game2P::addUnit(SDL_Renderer* renderer, Vector2D posMouse, int healthMax) {
-   /* listUnits.push_back(std::make_shared<Unit>(renderer, posMouse));
-    for(int i = 0; i < listUnits.size(); i++){
-        listUnits[i].healthMax++;
-    }
-    */
     if(elixir >= 20){
     elixir -= 20;
     auto newUnit = std::make_shared<Unit>(renderer, posMouse);
@@ -795,3 +673,4 @@ void Game2P::renderGold(SDL_Renderer* renderer, float p_x, float p_y, const char
     SDL_DestroyTexture(texture);
     SDL_FreeSurface(surface);
 }
+
