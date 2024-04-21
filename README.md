@@ -20,5 +20,6 @@
   - Sử dụng phím A - W - S - D để điều khiển cho con trỏ đặt tower của player 1 (phe Castle), nhấn 1, 2, 3 để chọn loại tower, nhấn X để đặt tháp; sử dụng phím mũi tên trên bàn phím để điều khiển cho con trỏ đặt units của player 2 (phe Enemy), nhấn J, K, L để chọn loại unit, nhấn SPACE để đặt unit.
 
 Demo Game trên Youtube:
-Game Mode Classics : https://youtu.be/0qq8ErHHse4
-Game Mode 2P : https://youtu.be/iBjWTVbZFR4
+- Game Mode Classics : https://youtu.be/0qq8ErHHse4
+- Game Mode 2P : https://youtu.be/iBjWTVbZFR4
+- Note: Do phần mềm quay màn hình bị chậm nên âm thanh bị delay hơn so với hình ảnh thực tế. 
