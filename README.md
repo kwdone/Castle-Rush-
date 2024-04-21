@@ -19,6 +19,20 @@
   Game Mode 2P:
   - Sử dụng phím A - W - S - D để điều khiển cho con trỏ đặt tower của player 1 (phe Castle), nhấn 1, 2, 3 để chọn loại tower, nhấn X để đặt tháp; sử dụng phím mũi tên trên bàn phím để điều khiển cho con trỏ đặt units của player 2 (phe Enemy), nhấn J, K, L để chọn loại unit, nhấn SPACE để đặt unit.
 
+Một số hình ảnh in-game: 
+- Menu 
+- ![Screenshot 2024-04-21 231917](https://github.com/kwdone/Castle-Rush-/assets/154901435/12620c20-bc4f-4375-a329-68f102ae3937)
+
+- Map chọn level
+- ![Screenshot 2024-04-21 231927](https://github.com/kwdone/Castle-Rush-/assets/154901435/7f6ede50-cda0-4b2a-a7af-ae93d326bc3b)
+
+- Các levels:
+- ![Screenshot 2024-04-21 231942](https://github.com/kwdone/Castle-Rush-/assets/154901435/e14df1d3-bc68-4d12-984b-7acaa2abcc0b)
+
+- Mode 2P:
+- ![Screenshot 2024-04-21 232047](https://github.com/kwdone/Castle-Rush-/assets/154901435/3b9e4720-5aec-4d4c-9ce0-64701e939308)
+
+
 Demo Game trên Youtube:
 - Game Mode Classics : https://youtu.be/0qq8ErHHse4
 - Game Mode 2P : https://youtu.be/iBjWTVbZFR4
