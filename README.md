@@ -36,4 +36,5 @@ Một số hình ảnh in-game:
 Demo Game trên Youtube:
 - Game Mode Classics : https://youtu.be/0qq8ErHHse4
 - Game Mode 2P : https://youtu.be/iBjWTVbZFR4
-- Note: Do phần mềm quay màn hình bị chậm nên âm thanh bị delay hơn so với hình ảnh thực tế. 
+- Note: Do phần mềm quay màn hình bị chậm nên âm thanh bị delay hơn so với hình ảnh thực tế.
+- Special credit to Funneratic.
